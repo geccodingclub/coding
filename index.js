@@ -27,17 +27,24 @@ const PORT = process.env.PORT || 5001;
 
 // Database Connection
 const MONGODB_URI = process.env.MONGODB_URI;
+
 if (!MONGODB_URI) {
-  console.error('CRITICAL ERROR: MONGODB_URI is not defined in environment variables.');
+  console.error('CRITICAL ERROR: MONGODB_URI is not defined.');
 }
 
-mongoose.connect(MONGODB_URI || 'mongodb://localhost:27017/coding-club')
-  .then(() => console.log('Connected to MongoDB Atlas'))
-  .catch(err => {
-    console.error('MongoDB connection error:', err);
-    // On Render, we should let the app start even if DB fails initially 
-    // to avoid "exited early" errors, then handle DB errors per request.
-  });
+// Disable buffering so we get immediate errors if not connected
+mongoose.set('bufferCommands', false);
+
+mongoose.connect(MONGODB_URI || 'mongodb://localhost:27017/coding-club', {
+  serverSelectionTimeoutMS: 5000, // Fail fast if Atlas is unreachable
+})
+  .then(() => console.log('Successfully connected to MongoDB Atlas'))
+  .catch(err => console.error('Initial MongoDB connection error:', err));
+
+// Log connection events
+mongoose.connection.on('connected', () => console.log('Mongoose connected to DB Cluster'));
+mongoose.connection.on('error', (err) => console.error('Mongoose runtime error:', err));
+mongoose.connection.on('disconnected', () => console.warn('Mongoose disconnected from DB Cluster'));
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
