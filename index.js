@@ -47,7 +47,10 @@ mongoose.connection.on('connected', () => console.log('Mongoose connected to DB 
 mongoose.connection.on('error', (err) => console.error('Mongoose runtime error:', err));
 mongoose.connection.on('disconnected', () => console.warn('Mongoose disconnected from DB Cluster'));
 
+const { verifyConnection } = require('./utils/mailer');
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log('Deployment status: ACTIVE');
+  verifyConnection();
 });

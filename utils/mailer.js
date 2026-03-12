@@ -1,12 +1,28 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true, // use SSL
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
-  }
+  },
+  debug: false, // show debug output
+  logger: false // log information in console
 });
+
+// Verify connection configuration
+const verifyConnection = async () => {
+  try {
+    await transporter.verify();
+    console.log('SMTP Server is ready to take our messages');
+    return true;
+  } catch (error) {
+    console.error('SMTP Connection Error:', error);
+    return false;
+  }
+};
 
 /**
  * Send an email
@@ -39,4 +55,4 @@ const sendEmail = async (to, subject, html, bcc = false) => {
   }
 };
 
-module.exports = { sendEmail };
+module.exports = { sendEmail, verifyConnection };

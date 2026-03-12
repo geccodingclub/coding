@@ -77,6 +77,20 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// Check SMTP Status
+router.get('/smtp-status', async (req, res) => {
+  try {
+    const isReady = await verifyConnection();
+    if (isReady) {
+      res.json({ status: 'ready', message: 'SMTP Server is connected and ready' });
+    } else {
+      res.status(500).json({ status: 'error', message: 'SMTP Connection Failed' });
+    }
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
 // Login
 router.post('/login', async (req, res) => {
   try {
