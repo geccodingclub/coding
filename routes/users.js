@@ -51,7 +51,7 @@ router.patch('/verify/:id', auth, authorize('VOLUNTEER', 'PRESIDENT'), async (re
           <p>Your registration for the <strong>Coding Club</strong> has been approved.</p>
           <p>You can now log in to the dashboard to view upcoming events and access club resources.</p>
           <br/>
-          <a href="https://coding-club-chi.vercel.app/" style="display: inline-block; padding: 12px 24px; background-color: #10b981; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Login to Dashboard</a>
+          <a href="https://coding-club-chi.vercel.app/dashboard" style="display: inline-block; padding: 12px 24px; background-color: #10b981; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Login to Dashboard</a>
           <br/><br/>
           <p>Welcome aboard!</p>
           <p><em>Coding Club GEC Bhojpur</em></p>
