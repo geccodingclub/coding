@@ -39,6 +39,8 @@ router.post('/', auth, authorize('PRESIDENT'), async (req, res) => {
             <p><strong>Date:</strong> ${new Date(newEvent.date).toLocaleDateString()}</p>
             <p><strong>Location:</strong> ${newEvent.location}</p>
             <br/>
+            <a href="https://coding-club-chi.vercel.app/" style="display: inline-block; padding: 12px 24px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">View Event on Dashboard</a>
+            <br/><br/>
             <p>See you there!</p>
             <p><em>Coding Club GEC Bhojpur</em></p>
           </div>
