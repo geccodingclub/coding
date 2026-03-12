@@ -25,9 +25,21 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5001;
 
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/coding-club')
-  .then(() => {
-    console.log('Connected to MongoDB');
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  })
-  .catch(err => console.error('MongoDB connection error:', err));
+// Database Connection
+const MONGODB_URI = process.env.MONGODB_URI;
+if (!MONGODB_URI) {
+  console.error('CRITICAL ERROR: MONGODB_URI is not defined in environment variables.');
+}
+
+mongoose.connect(MONGODB_URI || 'mongodb://localhost:27017/coding-club')
+  .then(() => console.log('Connected to MongoDB Atlas'))
+  .catch(err => {
+    console.error('MongoDB connection error:', err);
+    // On Render, we should let the app start even if DB fails initially 
+    // to avoid "exited early" errors, then handle DB errors per request.
+  });
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log('Deployment status: ACTIVE');
+});
