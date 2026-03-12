@@ -1,7 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { sendEmail } = require('../utils/mailer');
+const { sendEmail, verifyConnection } = require('../utils/mailer');
 const { uploadImage } = require('../utils/cloudinary');
 const router = express.Router();
 
