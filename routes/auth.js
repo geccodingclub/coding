@@ -10,6 +10,25 @@ router.post('/register', async (req, res) => {
   try {
     // console.log('Registration attempt:', req.body); // Removed for security
     const { name, email, password, rollNo, department, year, phoneNumber, profilePhoto } = req.body;
+
+    // Backend Validation
+    if (!name || !email || !password || !rollNo || !department || !year || !phoneNumber) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({ message: 'Password must be at least 8 characters' });
+    }
+
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(phoneNumber.replace(/\D/g, ''))) {
+      return res.status(400).json({ message: 'Invalid phone number' });
+    }
     
     // Check if user already exists
     const existingUser = await User.findOne({ email });

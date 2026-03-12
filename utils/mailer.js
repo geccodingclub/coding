@@ -29,10 +29,12 @@ const sendEmail = async (to, subject, html, bcc = false) => {
   };
 
   try {
+    console.log(`Attempting to send email to: ${to} | Subject: ${subject}`);
     const info = await transporter.sendMail(mailOptions);
+    console.log(`Email successfully sent to: ${to} | Message ID: ${info.messageId}`);
     return info;
   } catch (error) {
-    console.error('Email sending failed:', error);
+    console.error(`ERROR: Email sending failed for recipient ${to}:`, error.message);
     throw error;
   }
 };
