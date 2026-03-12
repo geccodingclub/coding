@@ -6,7 +6,7 @@ async function testRegistration() {
       name: 'Test User',
       email: 'test@example.com',
       password: 'password123',
-      collegeId: '12345',
+      rollNo: '12345',
       department: 'CS',
       year: 1
     });

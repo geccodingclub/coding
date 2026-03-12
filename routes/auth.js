@@ -2,19 +2,34 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { sendEmail } = require('../utils/mailer');
+const { uploadImage } = require('../utils/cloudinary');
 const router = express.Router();
 
 // Register
 router.post('/register', async (req, res) => {
   try {
     // console.log('Registration attempt:', req.body); // Removed for security
-    const { name, email, password, collegeId, department, year } = req.body;
+    const { name, email, password, rollNo, department, year, phoneNumber, profilePhoto } = req.body;
     
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: 'User already exists' });
 
-    const user = new User({ name, email, password, collegeId, department, year });
+    let photoUrl = '';
+    if (profilePhoto) {
+      photoUrl = await uploadImage(profilePhoto);
+    }
+
+    const user = new User({ 
+      name, 
+      email, 
+      password, 
+      rollNo, 
+      department, 
+      year, 
+      phoneNumber, 
+      profilePhoto: photoUrl 
+    });
     await user.save();
 
     // Send Welcome Email

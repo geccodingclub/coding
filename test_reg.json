@@ -2,7 +2,7 @@
   "name": "Test User",
   "email": "test-user-123@example.com",
   "password": "password123",
-  "collegeId": "C12345",
+  "rollNo": "C12345",
   "department": "Computer Science",
   "year": 1
 }

@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  collegeId: {
+  rollNo: {
     type: String,
     required: true
   },
@@ -39,11 +39,16 @@ const userSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
+  phoneNumber: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  profilePhoto: {
+    type: String,
+    default: ''
   }
-});
+}, { timestamps: true });
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {
