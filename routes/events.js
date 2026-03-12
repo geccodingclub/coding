@@ -1,0 +1,78 @@
+const express = require('express');
+const { sendEmail } = require('../utils/mailer');
+const Event = require('../models/Event');
+const User = require('../models/User');
+const { auth, authorize } = require('../middleware/auth');
+const router = express.Router();
+
+// Get all events
+router.get('/', auth, async (req, res) => {
+  try {
+    const events = await Event.find().populate('organizer', 'name').sort({ date: 1 });
+    res.json(events);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Create event (President only)
+router.post('/', auth, authorize('PRESIDENT'), async (req, res) => {
+  const event = new Event({
+    ...req.body,
+    organizer: req.user._id
+  });
+
+  try {
+    // Notify all registered users via email
+    const users = await User.find({}, 'email');
+    const emails = users.map(u => u.email);
+
+    if (emails.length > 0) {
+      sendEmail(
+        emails,
+        `New Event: ${newEvent.title}`,
+        `
+          <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+            <h2 style="color: #2563eb;">New Event Alert!</h2>
+            <p><strong>${newEvent.title}</strong> has been scheduled.</p>
+            <p>${newEvent.description}</p>
+            <p><strong>Date:</strong> ${new Date(newEvent.date).toLocaleDateString()}</p>
+            <p><strong>Location:</strong> ${newEvent.location}</p>
+            <br/>
+            <p>See you there!</p>
+            <p><em>Coding Club GEC Bhojpur</em></p>
+          </div>
+        `,
+        true // Use BCC
+      ).catch(err => console.error('Failed to send event broadcast email:', err));
+    }
+
+    res.status(201).json(newEvent);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Update event (President only)
+router.patch('/:id', auth, authorize('PRESIDENT'), async (req, res) => {
+  try {
+    const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+    res.json(event);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Delete event (President only)
+router.delete('/:id', auth, authorize('PRESIDENT'), async (req, res) => {
+  try {
+    const event = await Event.findByIdAndDelete(req.params.id);
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+    res.json({ message: 'Event deleted' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+module.exports = router;
