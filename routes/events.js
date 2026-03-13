@@ -5,6 +5,18 @@ const User = require('../models/User');
 const { auth, authorize } = require('../middleware/auth');
 const router = express.Router();
 
+// Get all launched events (Public)
+router.get('/public', async (req, res) => {
+  try {
+    const events = await Event.find({ isLaunched: true })
+      .populate('organizer', 'name')
+      .sort({ date: 1 });
+    res.json(events);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // Get all events
 router.get('/', auth, async (req, res) => {
   try {
@@ -78,6 +90,25 @@ router.delete('/:id', auth, authorize('PRESIDENT'), async (req, res) => {
     const event = await Event.findByIdAndDelete(req.params.id);
     if (!event) return res.status(404).json({ message: 'Event not found' });
     res.json({ message: 'Event deleted' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Toggle Launch Status (President only)
+router.patch('/launch/:id', auth, authorize('PRESIDENT'), async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+    
+    event.isLaunched = !event.isLaunched;
+    // Auto-update status when launching
+    if (event.isLaunched && event.status === 'DRAFT') {
+      event.status = 'UPCOMING';
+    }
+    
+    await event.save();
+    res.json(event);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

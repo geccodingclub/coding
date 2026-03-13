@@ -126,8 +126,8 @@ router.post('/assign-role', auth, authorize('PRESIDENT'), async (req, res) => {
   }
 });
 
-// Public: Get all verified members (Limited fields)
-router.get('/public-verified', async (req, res) => {
+// Authenticated: Get all verified members for directory (Protected)
+router.get('/verified-directory', auth, async (req, res) => {
   try {
     const users = await User.find({ isVerified: true })
       .select('name rollNo department year role profilePhoto')
