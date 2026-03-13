@@ -57,13 +57,18 @@ router.post('/register', async (req, res) => {
         user.email,
         'Welcome to Coding Club!',
         `
-          <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+          <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px; background-color: #fcfcfc;">
             <h2 style="color: #2563eb;">Welcome, ${user.name}!</h2>
-            <p>You have successfully registered for the <strong>Coding Club</strong>.</p>
+            <p>You have successfully registered for the <strong>Coding Club GEC Bhojpur</strong>.</p>
+            <p style="background-color: #f1f5f9; padding: 15px; border-radius: 8px; border-left: 4px solid #2563eb;">
+              <strong>Your Access Credentials:</strong><br/>
+              Email: ${user.email}<br/>
+              Password: <code style="background: #e2e8f0; padding: 2px 4px; rounded: 3px;">${password}</code>
+            </p>
             <p>Your account is currently <strong>Pending Review</strong>. A volunteer or president will verify your details shortly.</p>
             <p>Once verified, you will have access to all club projects, repositories, and events.</p>
             <br/>
-            <a href="https://coding-club-chi.vercel.app/dashboard" style="display: inline-block; padding: 12px 24px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Login to Dashboard</a>
+            <a href="https://coding-club-chi.vercel.app/login" style="display: inline-block; padding: 12px 24px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Access Dashboard</a>
             <br/><br/>
             <p>Happy Coding!</p>
             <p><em>Coding Club GEC Bhojpur</em></p>
