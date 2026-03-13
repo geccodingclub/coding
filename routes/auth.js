@@ -86,12 +86,47 @@ router.get('/email-status', async (req, res) => {
   try {
     const result = await verifyConnection();
     if (result.success) {
-      res.json({ status: 'ready', message: 'Resend API is initialized and ready' });
+      res.json({ status: 'ready', message: 'Brevo API is initialized and ready' });
     } else {
-      res.status(500).json({ status: 'error', message: 'Resend API Initialization Failed', details: result.error });
+      res.status(500).json({ status: 'error', message: 'Brevo API Initialization Failed', details: result.error });
     }
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+// Contact Form Endpoint
+router.post('/contact', async (req, res) => {
+  try {
+    const { name, userEmail, subject, message } = req.body;
+    
+    if (!name || !userEmail || !subject || !message) {
+      return res.status(400).json({ message: 'All fields are required for transmission' });
+    }
+
+    // Send email to club admin
+    await sendEmail(
+      process.env.EMAIL_USER || 'geccodingclub@gmail.com',
+      `[CONTACT_UPLINK] ${subject}`,
+      `
+        <div style="font-family: monospace; padding: 20px; background-color: #0f172a; color: #f1f5f9; border: 1px solid #1e293b; border-radius: 12px;">
+          <h2 style="color: #3b82f6; border-bottom: 1px solid #1e293b; padding-bottom: 10px;">Contact_Form_Submission</h2>
+          <p><strong>Codename:</strong> ${name}</p>
+          <p><strong>Uplink_Email:</strong> ${userEmail}</p>
+          <p><strong>Subject:</strong> ${subject}</p>
+          <div style="margin-top: 20px; padding: 15px; background-color: #1e293b; border-radius: 8px;">
+            <strong>Message_Data:</strong><br/>
+            ${message.replace(/\n/g, '<br/>')}
+          </div>
+          <p style="margin-top: 20px; font-size: 10px; color: #64748b;">SYSTEM: CONTACT_API_V1.0</p>
+        </div>
+      `
+    );
+
+    res.json({ success: true, message: 'Transmission Successful' });
+  } catch (error) {
+    console.error('CONTACT_ERROR:', error);
+    res.status(500).json({ message: 'Uplink Failed. System offline.' });
   }
 });
 

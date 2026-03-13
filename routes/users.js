@@ -126,4 +126,26 @@ router.post('/assign-role', auth, authorize('PRESIDENT'), async (req, res) => {
   }
 });
 
+// Public: Get all verified members (Limited fields)
+router.get('/public-verified', async (req, res) => {
+  try {
+    const users = await User.find({ isVerified: true })
+      .select('name rollNo department year role profilePhoto')
+      .sort({ name: 1 });
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Public: Get club statistics
+router.get('/public-stats', async (req, res) => {
+  try {
+    const verifiedCount = await User.countDocuments({ isVerified: true });
+    res.json({ verifiedCount });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 module.exports = router;
