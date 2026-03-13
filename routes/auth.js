@@ -84,11 +84,11 @@ router.post('/register', async (req, res) => {
 // Check SMTP Status
 router.get('/smtp-status', async (req, res) => {
   try {
-    const isReady = await verifyConnection();
-    if (isReady) {
+    const result = await verifyConnection();
+    if (result.success) {
       res.json({ status: 'ready', message: 'SMTP Server is connected and ready' });
     } else {
-      res.status(500).json({ status: 'error', message: 'SMTP Connection Failed' });
+      res.status(500).json({ status: 'error', message: 'SMTP Connection Failed', details: result.error });
     }
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });

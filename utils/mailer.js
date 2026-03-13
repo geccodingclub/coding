@@ -15,10 +15,10 @@ const verifyConnection = async () => {
   try {
     await transporter.verify();
     console.log('SMTP Server is ready to take our messages');
-    return true;
+    return { success: true };
   } catch (error) {
     console.error('SMTP Connection Error:', error);
-    return false;
+    return { success: false, error: error.message };
   }
 };
 
