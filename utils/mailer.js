@@ -45,12 +45,18 @@ const sendEmail = async (to, subject, html, bcc = false) => {
   };
 
   try {
-    console.log(`Attempting to send email to: ${to} | Subject: ${subject}`);
+    console.log(`[MAILER] Attempting to send email to: ${Array.isArray(to) ? to.join(', ') : to}`);
+    console.log(`[MAILER] Subject: ${subject}`);
     const info = await transporter.sendMail(mailOptions);
-    console.log(`Email successfully sent to: ${to} | Message ID: ${info.messageId}`);
+    console.log(`[MAILER] Success! Message ID: ${info.messageId}`);
     return info;
   } catch (error) {
-    console.error(`ERROR: Email sending failed for recipient ${to}:`, error.message);
+    console.error(`[MAILER] ERROR: Sending failed:`, {
+      message: error.message,
+      code: error.code,
+      command: error.command,
+      recipient: to
+    });
     throw error;
   }
 };

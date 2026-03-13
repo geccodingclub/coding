@@ -52,23 +52,27 @@ router.post('/register', async (req, res) => {
     await user.save();
 
     // Send Welcome Email
-    sendEmail(
-      user.email,
-      'Welcome to Coding Club!',
-      `
-        <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-          <h2 style="color: #2563eb;">Welcome, ${user.name}!</h2>
-          <p>You have successfully registered for the <strong>Coding Club</strong>.</p>
-          <p>Your account is currently <strong>Pending Review</strong>. A volunteer or president will verify your details shortly.</p>
-          <p>Once verified, you will have access to all club projects, repositories, and events.</p>
-          <br/>
-          <a href="https://coding-club-chi.vercel.app/dashboard" style="display: inline-block; padding: 12px 24px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Login to Dashboard</a>
-          <br/><br/>
-          <p>Happy Coding!</p>
-          <p><em>Coding Club GEC Bhojpur</em></p>
-        </div>
-      `
-    ).catch(err => console.error('Failed to send welcome email:', err));
+    try {
+      await sendEmail(
+        user.email,
+        'Welcome to Coding Club!',
+        `
+          <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+            <h2 style="color: #2563eb;">Welcome, ${user.name}!</h2>
+            <p>You have successfully registered for the <strong>Coding Club</strong>.</p>
+            <p>Your account is currently <strong>Pending Review</strong>. A volunteer or president will verify your details shortly.</p>
+            <p>Once verified, you will have access to all club projects, repositories, and events.</p>
+            <br/>
+            <a href="https://coding-club-chi.vercel.app/dashboard" style="display: inline-block; padding: 12px 24px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Login to Dashboard</a>
+            <br/><br/>
+            <p>Happy Coding!</p>
+            <p><em>Coding Club GEC Bhojpur</em></p>
+          </div>
+        `
+      );
+    } catch (err) {
+      console.error('CRITICAL: Failed to send welcome email:', err);
+    }
 
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
     res.status(201).json({ user, token });
