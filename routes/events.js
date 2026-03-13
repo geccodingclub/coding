@@ -23,6 +23,8 @@ router.post('/', auth, authorize('PRESIDENT'), async (req, res) => {
   });
 
   try {
+    await event.save();
+    
     // Notify all registered users via email
     const users = await User.find({}, 'email');
     const emails = users.map(u => u.email);
@@ -30,14 +32,14 @@ router.post('/', auth, authorize('PRESIDENT'), async (req, res) => {
     if (emails.length > 0) {
       sendEmail(
         emails,
-        `New Event: ${newEvent.title}`,
+        `New Event: ${event.title}`,
         `
           <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
             <h2 style="color: #2563eb;">New Event Alert!</h2>
-            <p><strong>${newEvent.title}</strong> has been scheduled.</p>
-            <p>${newEvent.description}</p>
-            <p><strong>Date:</strong> ${new Date(newEvent.date).toLocaleDateString()}</p>
-            <p><strong>Location:</strong> ${newEvent.location}</p>
+            <p><strong>${event.title}</strong> has been scheduled.</p>
+            <p>${event.description}</p>
+            <p><strong>Date:</strong> ${new Date(event.date).toLocaleDateString()}</p>
+            <p><strong>Location:</strong> ${event.location}</p>
             <br/>
             <a href="https://coding-club-chi.vercel.app/dashboard" style="display: inline-block; padding: 12px 24px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">View Event on Dashboard</a>
             <br/><br/>
@@ -49,7 +51,7 @@ router.post('/', auth, authorize('PRESIDENT'), async (req, res) => {
       ).catch(err => console.error('Failed to send event broadcast email:', err));
     }
 
-    res.status(201).json(newEvent);
+    res.status(201).json(event);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
