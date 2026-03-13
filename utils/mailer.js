@@ -1,66 +1,60 @@
-const nodemailer = require('nodemailer');
-const dns = require('dns');
+const { Resend } = require('resend');
 
-// Force Node.js to prefer IPv4 over IPv6 globally for Render networking
-if (dns.setDefaultResultOrder) {
-  dns.setDefaultResultOrder('ipv4first');
-}
-
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // Use STARTTLS
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  },
-  // Force IPv4 specifically for the SMTP connection
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 30000,
-  tls: {
-    rejectUnauthorized: false // Helps with some cloud connection handshakes
-  }
-});
+// Initialize Resend with API Key
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 /**
- * Verifies the connection to the SMTP server
+ * Verifies the Resend setup (basic check for API Key presence)
  */
 const verifyConnection = async () => {
   try {
-    console.log('[MAILER] Verifying SMTP connection...');
-    await transporter.verify();
-    console.log('[MAILER] SMTP Server is READY');
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error('RESEND_API_KEY is missing from environment variables');
+    }
+    // We don't have a "verify" method like Nodemailer, 
+    // but the presence of the key and successfully sending 
+    // the first email will confirm validity.
+    console.log('[MAILER] Resend API Client Initialized');
     return { success: true };
   } catch (error) {
-    console.error('[MAILER] SMTP Connection Error:', error.message);
+    console.error('[MAILER] Resend Initialization Error:', error.message);
     return { success: false, error: error.message };
   }
 };
 
 /**
- * Sends an email
+ * Sends an email using Resend API
+ * @param {string|string[]} to - Recipient(s)
+ * @param {string} subject - Email subject
+ * @param {string} html - Email body in HTML
+ * @param {boolean} bcc - Whether to use BCC for multiple recipients
  */
 const sendEmail = async (to, subject, html, bcc = false) => {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.warn('[MAILER] Missing credentials. Skipping email.');
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('[MAILER] RESEND_API_KEY not set. Skipping email.');
     return;
   }
 
-  const mailOptions = {
-    from: `"Coding Club" <${process.env.EMAIL_USER}>`,
-    [bcc ? 'bcc' : 'to']: to,
-    subject: subject,
-    html: html
-  };
-
   try {
-    console.log(`[MAILER] Sending email to: ${Array.isArray(to) ? to.join(', ') : to}`);
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`[MAILER] Email sent successfully! ID: ${info.messageId}`);
-    return info;
+    console.log(`[MAILER] Sending email via Resend to: ${Array.isArray(to) ? to.join(', ') : to}`);
+    
+    const { data, error } = await resend.emails.send({
+      from: 'Coding Club <onboarding@resend.dev>', // Default Resend test sender
+      to: Array.isArray(to) ? to : [to],
+      subject: subject,
+      html: html,
+      ...(bcc && { bcc: Array.isArray(to) ? to : [to] })
+    });
+
+    if (error) {
+      console.error('[MAILER] Resend sending failed:', error.message);
+      throw new Error(error.message);
+    }
+
+    console.log(`[MAILER] Email sent successfully! ID: ${data.id}`);
+    return data;
   } catch (error) {
-    console.error(`[MAILER] Sending failed:`, error.message);
+    console.error(`[MAILER] ERROR:`, error.message);
     throw error;
   }
 };

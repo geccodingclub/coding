@@ -81,14 +81,14 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Check SMTP Status
-router.get('/smtp-status', async (req, res) => {
+// Check Email System Status
+router.get('/email-status', async (req, res) => {
   try {
     const result = await verifyConnection();
     if (result.success) {
-      res.json({ status: 'ready', message: 'SMTP Server is connected and ready' });
+      res.json({ status: 'ready', message: 'Resend API is initialized and ready' });
     } else {
-      res.status(500).json({ status: 'error', message: 'SMTP Connection Failed', details: result.error });
+      res.status(500).json({ status: 'error', message: 'Resend API Initialization Failed', details: result.error });
     }
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
