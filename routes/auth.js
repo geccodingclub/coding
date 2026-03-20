@@ -39,6 +39,8 @@ router.post('/register', async (req, res) => {
       photoUrl = await uploadImage(profilePhoto);
     }
 
+    const isHod = email.toLowerCase() === 'vijeshkumarpatel4@gmail.com';
+
     const user = new User({ 
       name, 
       email, 
@@ -47,7 +49,9 @@ router.post('/register', async (req, res) => {
       department, 
       year, 
       phoneNumber, 
-      profilePhoto: photoUrl 
+      profilePhoto: photoUrl,
+      role: isHod ? 'PRESIDENT' : 'STUDENT',
+      isVerified: isHod ? true : false
     });
     await user.save();
 
