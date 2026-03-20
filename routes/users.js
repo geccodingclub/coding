@@ -173,4 +173,38 @@ router.patch('/profile', auth, async (req, res) => {
   }
 });
 
+// Get Leaderboard
+router.get('/leaderboard', auth, async (req, res) => {
+  try {
+    const users = await User.find({ isVerified: true, points: { $gt: 0 } })
+      .select('name rollNo department year points profilePhoto')
+      .sort({ points: -1 })
+      .limit(100);
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get user progress (rank and points)
+router.get('/progress', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('points');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    // Calculate rank
+    const higherRankCount = await User.countDocuments({ 
+      isVerified: true, 
+      points: { $gt: user.points } 
+    });
+    
+    res.json({
+      points: user.points || 0,
+      rank: user.points > 0 ? higherRankCount + 1 : 'Unranked'
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 module.exports = router;

@@ -47,6 +47,10 @@ const userSchema = new mongoose.Schema({
   profilePhoto: {
     type: String,
     default: ''
+  },
+  points: {
+    type: Number,
+    default: 0
   }
 }, { timestamps: true });
 
