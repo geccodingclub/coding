@@ -83,7 +83,7 @@ router.post('/register', async (req, res) => {
       console.error('CRITICAL: Failed to send welcome email:', err);
     }
 
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '30d' });
     res.status(201).json({ user, token });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -154,7 +154,7 @@ router.post('/login', async (req, res) => {
       return res.status(500).json({ message: 'Server configuration error: JWT_SECRET missing' });
     }
 
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '30d' });
     res.json({ user, token });
   } catch (error) {
     console.error('LOGIN ERROR:', error);
