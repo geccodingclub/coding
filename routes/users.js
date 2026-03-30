@@ -6,7 +6,12 @@ const router = express.Router();
 
 // Get profile
 router.get('/profile', auth, async (req, res) => {
-  res.json(req.user);
+  const user = req.user;
+  if (user.isProfileComplete === false && user.rollNo && user.department && user.year && user.phoneNumber) {
+    user.isProfileComplete = true;
+    await user.save();
+  }
+  res.json(user);
 });
 
 // President/Volunteer: Get students for verification

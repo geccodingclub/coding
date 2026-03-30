@@ -1,9 +1,13 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
 const { sendEmail, verifyConnection } = require('../utils/mailer');
 const { uploadImage } = require('../utils/cloudinary');
+const { auth } = require('../middleware/auth');
 const router = express.Router();
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Register
 router.post('/register', async (req, res) => {
@@ -50,8 +54,10 @@ router.post('/register', async (req, res) => {
       year, 
       phoneNumber, 
       profilePhoto: photoUrl,
+      authProvider: 'local',
       role: isHod ? 'PRESIDENT' : 'STUDENT',
-      isVerified: true
+      isVerified: true,
+      isProfileComplete: true
     });
     await user.save();
 
@@ -145,6 +151,10 @@ router.post('/login', async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: 'User not found' });
 
+    if (user.authProvider === 'google') {
+      return res.status(400).json({ message: 'This account uses Google Sign-In. Please use the Google button to login.' });
+    }
+
     const isMatch = await user.comparePassword(password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
@@ -158,6 +168,110 @@ router.post('/login', async (req, res) => {
   } catch (error) {
     console.error('LOGIN ERROR:', error);
     res.status(500).json({ message: error.message || 'Internal Server Error' });
+  }
+});
+
+// Google OAuth
+router.post('/google', async (req, res) => {
+  try {
+    const { credential } = req.body;
+    if (!credential) {
+      return res.status(400).json({ message: 'Google credential is required' });
+    }
+
+    // Verify the Google ID token
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const { sub: googleId, email, name, picture } = payload;
+
+    // Check if user already exists
+    let user = await User.findOne({ email });
+
+    if (user) {
+      // Existing user — if they registered with email/password, link the Google account
+      if (user.authProvider === 'local' && !user.providerId) {
+        user.authProvider = 'google';
+        user.providerId = googleId;
+        if (!user.profilePhoto && picture) user.profilePhoto = picture;
+        await user.save();
+      }
+    } else {
+      // New user — create with Google info
+      user = new User({
+        name,
+        email,
+        authProvider: 'google',
+        providerId: googleId,
+        profilePhoto: picture || '',
+        isVerified: true,
+        isProfileComplete: false,
+      });
+      await user.save();
+
+      // Send welcome email
+      try {
+        await sendEmail(
+          user.email,
+          'Welcome to Coding Club!',
+          `
+            <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px; background-color: #fcfcfc;">
+              <h2 style="color: #2563eb;">Welcome, ${user.name}!</h2>
+              <p>You have successfully joined <strong>Coding Club GEC Bhojpur</strong> using Google Sign-In.</p>
+              <p>Your account is <strong style="color: #16a34a;">Active</strong>. Please complete your profile to access all club features.</p>
+              <br/>
+              <a href="https://coding-club-chi.vercel.app/complete-profile" style="display: inline-block; padding: 12px 24px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Complete Profile</a>
+              <br/><br/>
+              <p>Happy Coding!</p>
+              <p><em>Coding Club GEC Bhojpur</em></p>
+            </div>
+          `
+        );
+      } catch (err) {
+        console.error('Failed to send welcome email for Google user:', err);
+      }
+    }
+
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '30d' });
+    res.json({ user, token });
+  } catch (error) {
+    console.error('GOOGLE AUTH ERROR:', error);
+    res.status(401).json({ message: 'Google authentication failed. Please try again.' });
+  }
+});
+
+// Complete Profile (for OAuth users)
+router.put('/complete-profile', auth, async (req, res) => {
+  try {
+    const { rollNo, department, year, phoneNumber, profilePhoto } = req.body;
+
+    if (!rollNo || !department || !year || !phoneNumber) {
+      return res.status(400).json({ message: 'All fields are required to complete your profile' });
+    }
+
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(phoneNumber.replace(/\D/g, ''))) {
+      return res.status(400).json({ message: 'Enter a valid 10-digit phone number' });
+    }
+
+    const user = req.user;
+    user.rollNo = rollNo;
+    user.department = department;
+    user.year = year;
+    user.phoneNumber = phoneNumber;
+    user.isProfileComplete = true;
+
+    if (profilePhoto) {
+      user.profilePhoto = await uploadImage(profilePhoto);
+    }
+
+    await user.save();
+    res.json(user);
+  } catch (error) {
+    console.error('COMPLETE PROFILE ERROR:', error);
+    res.status(400).json({ message: error.message });
   }
 });
 
