@@ -51,7 +51,7 @@ router.post('/register', async (req, res) => {
       phoneNumber, 
       profilePhoto: photoUrl,
       role: isHod ? 'PRESIDENT' : 'STUDENT',
-      isVerified: isHod ? true : false
+      isVerified: true
     });
     await user.save();
 
@@ -69,8 +69,7 @@ router.post('/register', async (req, res) => {
               Email: ${user.email}<br/>
               Password: <code style="background: #e2e8f0; padding: 2px 4px; rounded: 3px;">${password}</code>
             </p>
-            <p>Your account is currently <strong>Pending Review</strong>. A volunteer or president will verify your details shortly.</p>
-            <p>Once verified, you will have access to all club projects, repositories, and events.</p>
+            <p>Your account is <strong style="color: #16a34a;">Active</strong>. You now have full access to all club projects, repositories, and events.</p>
             <br/>
             <a href="https://coding-club-chi.vercel.app/login" style="display: inline-block; padding: 12px 24px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Access Dashboard</a>
             <br/><br/>
