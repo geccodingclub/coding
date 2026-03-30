@@ -174,25 +174,18 @@ router.post('/login', async (req, res) => {
 // Google OAuth
 router.post('/google', async (req, res) => {
   try {
-    const { credential } = req.body;
-    if (!credential) {
-      return res.status(400).json({ message: 'Google credential is required' });
-    }
+    const { googleId, email, name, picture } = req.body;
 
-    // Verify the Google ID token
-    const ticket = await googleClient.verifyIdToken({
-      idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-    const payload = ticket.getPayload();
-    const { sub: googleId, email, name, picture } = payload;
+    if (!email || !googleId) {
+      return res.status(400).json({ message: 'Google sign-in data is incomplete' });
+    }
 
     // Check if user already exists
     let user = await User.findOne({ email });
 
     if (user) {
-      // Existing user — if they registered with email/password, link the Google account
-      if (user.authProvider === 'local' && !user.providerId) {
+      // Link Google account to existing local account if not already linked
+      if (!user.providerId) {
         user.authProvider = 'google';
         user.providerId = googleId;
         if (!user.profilePhoto && picture) user.profilePhoto = picture;
