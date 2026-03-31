@@ -31,7 +31,7 @@ const sendEmail = async (to, subject, html, bcc = false) => {
   const recipients = Array.isArray(to) ? to.map(email => ({ email })) : [{ email: to }];
   
   const payload = {
-    sender: { name: 'Coding Club', email: senderEmail },
+    sender: { name: 'Cortex', email: senderEmail },
     to: recipients,
     subject: subject,
     htmlContent: html

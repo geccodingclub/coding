@@ -49,7 +49,7 @@ router.post('/', auth, authorize('PRESIDENT', 'VOLUNTEER'), async (req, res) => 
       const emailPromises = users.map(u => 
         sendEmail(
           u.email,
-          `New Challenge: ${title} - Coding Club`,
+          `New Challenge: ${title} - Cortex`,
           `
             <div style="font-family: sans-serif; padding: 20px; border: 1px solid #1e293b; border-radius: 10px; background-color: #0f172a; color: #f1f5f9;">
               <h2 style="color: #3b82f6; border-bottom: 1px solid #1e293b; padding-bottom: 10px;">New Challenge Deployed: ${title}</h2>
@@ -67,7 +67,7 @@ router.post('/', auth, authorize('PRESIDENT', 'VOLUNTEER'), async (req, res) => 
               <p style="margin-top: 30px;">Once completed, don't forget to submit your proof on the <a href="https://coding-club-chi.vercel.app/contests" style="color: #3b82f6;">Contests Dashboard</a>.</p>
               
               <br/>
-              <p style="font-size: 12px; color: #64748b;"><em>Coding Club GEC Bhojpur • Automated Delivery System</em></p>
+              <p style="font-size: 12px; color: #64748b;"><em>Cortex GEC Bhojpur • Automated Delivery System</em></p>
             </div>
           `
         ).catch(err => console.error(`Failed to send email to ${u.email}:`, err))

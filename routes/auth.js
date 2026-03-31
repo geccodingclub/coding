@@ -65,11 +65,11 @@ router.post('/register', async (req, res) => {
     try {
       await sendEmail(
         user.email,
-        'Welcome to Coding Club!',
+        'Welcome to Cortex!',
         `
           <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px; background-color: #fcfcfc;">
             <h2 style="color: #2563eb;">Welcome, ${user.name}!</h2>
-            <p>You have successfully registered for the <strong>Coding Club GEC Bhojpur</strong>.</p>
+            <p>You have successfully registered for the <strong>Cortex GEC Bhojpur</strong>.</p>
             <p style="background-color: #f1f5f9; padding: 15px; border-radius: 8px; border-left: 4px solid #2563eb;">
               <strong>Your Access Credentials:</strong><br/>
               Email: ${user.email}<br/>
@@ -80,7 +80,7 @@ router.post('/register', async (req, res) => {
             <a href="https://coding-club-chi.vercel.app/login" style="display: inline-block; padding: 12px 24px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Access Dashboard</a>
             <br/><br/>
             <p>Happy Coding!</p>
-            <p><em>Coding Club GEC Bhojpur</em></p>
+            <p><em>Cortex GEC Bhojpur</em></p>
           </div>
         `
       );
@@ -208,17 +208,17 @@ router.post('/google', async (req, res) => {
       try {
         await sendEmail(
           user.email,
-          'Welcome to Coding Club!',
+          'Welcome to Cortex!',
           `
             <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px; background-color: #fcfcfc;">
               <h2 style="color: #2563eb;">Welcome, ${user.name}!</h2>
-              <p>You have successfully joined <strong>Coding Club GEC Bhojpur</strong> using Google Sign-In.</p>
+              <p>You have successfully joined <strong>Cortex GEC Bhojpur</strong> using Google Sign-In.</p>
               <p>Your account is <strong style="color: #16a34a;">Active</strong>. Please complete your profile to access all club features.</p>
               <br/>
               <a href="https://coding-club-chi.vercel.app/complete-profile" style="display: inline-block; padding: 12px 24px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Complete Profile</a>
               <br/><br/>
               <p>Happy Coding!</p>
-              <p><em>Coding Club GEC Bhojpur</em></p>
+              <p><em>Cortex GEC Bhojpur</em></p>
             </div>
           `
         );

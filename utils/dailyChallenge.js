@@ -73,7 +73,7 @@ const startDailyChallengeCron = () => {
               <p style="margin-top: 30px;">Once completed, don't forget to submit your proof on the <a href="https://coding-club-chi.vercel.app/contests" style="color: #3b82f6;">Contests Dashboard</a> to secure your points!</p>
               
               <br/>
-              <p style="font-size: 12px; color: #64748b;"><em>Coding Club GEC Bhojpur • Automated Delivery System</em></p>
+              <p style="font-size: 12px; color: #64748b;"><em>Cortex GEC Bhojpur • Automated Delivery System</em></p>
             </div>
           `
         ).catch(err => console.error(`[CRON] Failed to send email to ${u.email}:`, err))

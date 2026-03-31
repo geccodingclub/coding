@@ -57,7 +57,7 @@ router.post('/', auth, authorize('PRESIDENT'), async (req, res) => {
               <a href="https://coding-club-chi.vercel.app/dashboard" style="display: inline-block; padding: 12px 24px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">View Event on Dashboard</a>
               <br/><br/>
               <p>See you there!</p>
-              <p><em>Coding Club GEC Bhojpur</em></p>
+              <p><em>Cortex GEC Bhojpur</em></p>
             </div>
           `,
           true // Use BCC
