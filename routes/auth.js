@@ -151,8 +151,8 @@ router.post('/login', async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    if (user.authProvider === 'google') {
-      return res.status(400).json({ message: 'This account uses Google Sign-In. Please use the Google button to login.' });
+    if (!user.password) {
+      return res.status(400).json({ message: 'This account was created via Google Sign-In. Please use the Google button to login.' });
     }
 
     const isMatch = await user.comparePassword(password);
