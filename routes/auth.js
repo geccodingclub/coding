@@ -5,12 +5,19 @@ const User = require('../models/User');
 const { sendEmail, verifyConnection } = require('../utils/mailer');
 const { uploadImage } = require('../utils/cloudinary');
 const { auth } = require('../middleware/auth');
+const rateLimit = require('express-rate-limit');
 const router = express.Router();
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10, // 10 requests per 15 minutes for auth endpoints
+  message: { message: 'Too many authentication attempts, please try again after 15 minutes' }
+});
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Register
-router.post('/register', async (req, res) => {
+router.post('/register', authLimiter, async (req, res) => {
   try {
     // console.log('Registration attempt:', req.body); // Removed for security
     const { name, email, password, rollNo, department, year, phoneNumber, profilePhoto } = req.body;
@@ -145,7 +152,7 @@ router.post('/contact', async (req, res) => {
 });
 
 // Login
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
@@ -172,7 +179,7 @@ router.post('/login', async (req, res) => {
 });
 
 // Google OAuth
-router.post('/google', async (req, res) => {
+router.post('/google', authLimiter, async (req, res) => {
   try {
     const { googleId, email, name, picture } = req.body;
 
