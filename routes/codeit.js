@@ -2,6 +2,7 @@ const express = require('express');
 const CodeItRegistration = require('../models/CodeItRegistration');
 const { auth } = require('../middleware/auth');
 const { sendEmail } = require('../utils/mailer');
+const QRCode = require('qrcode');
 const router = express.Router();
 
 // Register for CodeIt (authenticated users only)
@@ -34,6 +35,33 @@ router.post('/register', auth, async (req, res) => {
     });
 
     await registration.save();
+
+    await registration.save();
+
+    let qrAttachments = null;
+    let qrHtmlAddition = '';
+    try {
+      const qrCodeDataUrl = await QRCode.toDataURL(registration._id.toString(), {
+        color: { dark: '#000000', light: '#ffffff' },
+        width: 300,
+        margin: 2
+      });
+      const base64Data = qrCodeDataUrl.split(',')[1];
+      qrAttachments = [{
+        content: base64Data,
+        name: 'CodeIt_EntryTicket.png'
+      }];
+      qrHtmlAddition = `
+        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 8px; padding: 16px; margin: 24px 0 0; text-align: center;">
+          <p style="margin: 0; color: #3b82f6; font-size: 14px; font-weight: bold;">🎟️ Entry Ticket Attached</p>
+          <p style="margin: 8px 0 0; color: rgba(255,255,255,0.6); font-size: 12px; line-height: 1.5;">
+            We have attached your unique QR Code ticket to this email. Please download it or keep it ready on your phone to scan at the entry desk on the day of the event.
+          </p>
+        </div>
+      `;
+    } catch (qrErr) {
+      console.error('[CODEIT] Failed to generate QR Code:', qrErr);
+    }
 
     // Send confirmation email
     try {
@@ -110,6 +138,8 @@ router.post('/register', auth, async (req, res) => {
                 </a>
               </div>
 
+              ${qrHtmlAddition}
+
               <p style="color: rgba(255,255,255,0.3); font-size: 12px; text-align: center; margin: 16px 0 0;">
                 Good luck! 🚀
               </p>
@@ -122,7 +152,9 @@ router.post('/register', auth, async (req, res) => {
               </p>
             </div>
           </div>
-        `
+        `,
+        false,
+        qrAttachments
       );
       console.log(`[CODEIT] Confirmation email sent to ${req.user.email}`);
     } catch (emailErr) {

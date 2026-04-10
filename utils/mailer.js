@@ -19,7 +19,7 @@ const verifyConnection = async () => {
 /**
  * Sends an email using Brevo API (v3)
  */
-const sendEmail = async (to, subject, html, bcc = false) => {
+const sendEmail = async (to, subject, html, bcc = false, attachments = null) => {
   const apiKey = process.env.BREVO_API_KEY;
   const senderEmail = process.env.EMAIL_USER || 'geccodingclub@gmail.com';
 
@@ -42,6 +42,10 @@ const sendEmail = async (to, subject, html, bcc = false) => {
     payload.bcc = to.map(email => ({ email }));
     // When using BCC, we usually send to the sender themselves as the "To"
     payload.to = [{ email: senderEmail }];
+  }
+
+  if (attachments && Array.isArray(attachments)) {
+    payload.attachment = attachments;
   }
 
   try {
