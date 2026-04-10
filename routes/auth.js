@@ -5,7 +5,6 @@ const User = require('../models/User');
 const { sendEmail, verifyConnection } = require('../utils/mailer');
 const { uploadImage } = require('../utils/cloudinary');
 const { auth } = require('../middleware/auth');
-const rateLimit = require('express-rate-limit');
 const router = express.Router();
 
 // Rate limiting removed from auth endpoints
