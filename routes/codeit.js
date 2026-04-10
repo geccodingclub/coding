@@ -214,4 +214,35 @@ router.get('/count', auth, async (req, res) => {
   }
 });
 
+// Admin/Volunteer: Toggle Check-In status
+router.put('/checkin/:id', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'PRESIDENT' && req.user.role !== 'VOLUNTEER') {
+      return res.status(403).json({ message: 'Access denied.' });
+    }
+
+    const registration = await CodeItRegistration.findById(req.params.id).populate('user', 'name');
+    if (!registration) {
+      return res.status(404).json({ message: 'CodeIt Registration not found.' });
+    }
+
+    registration.isCheckedIn = !registration.isCheckedIn;
+    
+    if (registration.isCheckedIn) {
+      registration.checkInTime = new Date();
+    } else {
+      registration.checkInTime = null;
+    }
+
+    await registration.save();
+    
+    res.json({ 
+      message: `${registration.user.name} is now ${registration.isCheckedIn ? 'Checked-IN ✅' : 'Un-Checked ❌'}`,
+      registration 
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 module.exports = router;

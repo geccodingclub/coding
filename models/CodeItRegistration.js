@@ -22,6 +22,13 @@ const codeItRegistrationSchema = new mongoose.Schema({
     enum: ['Yes', 'No'],
     required: true,
   },
+  isCheckedIn: {
+    type: Boolean,
+    default: false
+  },
+  checkInTime: {
+    type: Date
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('CodeItRegistration', codeItRegistrationSchema);
