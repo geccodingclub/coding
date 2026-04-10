@@ -8,11 +8,9 @@ const { auth } = require('../middleware/auth');
 const rateLimit = require('express-rate-limit');
 const router = express.Router();
 
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10, // 10 requests per 15 minutes for auth endpoints
-  message: { message: 'Too many authentication attempts, please try again after 15 minutes' }
-});
+// Rate limiting removed from auth endpoints
+const authLimiter = (req, res, next) => next();
+
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 

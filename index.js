@@ -9,14 +9,9 @@ dotenv.config();
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Render, Vercel, Heroku, etc.)
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per 15 minutes
-  standardHeaders: true, 
-  legacyHeaders: false,
-  message: { message: 'Too many requests from this IP, please try again after 15 minutes' }
-});
+// Rate limiting removed globally
+const limiter = (req, res, next) => next();
+
 
 // Middleware
 app.use(cors());
