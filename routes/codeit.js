@@ -1,5 +1,6 @@
 const express = require('express');
 const CodeItRegistration = require('../models/CodeItRegistration');
+const CodeItSettings = require('../models/CodeItSettings');
 const { auth } = require('../middleware/auth');
 const { sendEmail } = require('../utils/mailer');
 const QRCode = require('qrcode');
@@ -21,8 +22,8 @@ router.post('/register', auth, async (req, res) => {
       return res.status(400).json({ message: 'You are already registered for CodeIt.' });
     }
 
-    // Check deadline (April 10, 2026 23:59:59 IST)
-    const deadline = new Date('2026-04-10T23:59:59+05:30');
+    // Check deadline (May 14, 2026 23:59:59 IST)
+    const deadline = new Date('2026-05-14T23:59:59+05:30');
     if (new Date() > deadline) {
       return res.status(400).json({ message: 'Registration deadline has passed.' });
     }
@@ -178,9 +179,19 @@ router.post('/register', auth, async (req, res) => {
 router.get('/status', auth, async (req, res) => {
   try {
     const registration = await CodeItRegistration.findOne({ user: req.user._id });
+    
+    let hackerrankLink = null;
+    if (registration && registration.isCheckedIn) {
+      const settings = await CodeItSettings.findOne();
+      if (settings && settings.isLinkPublished) {
+        hackerrankLink = settings.hackerrankLink;
+      }
+    }
+
     res.json({ 
       isRegistered: !!registration,
       registration: registration || null,
+      hackerrankLink,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -240,6 +251,44 @@ router.put('/checkin/:id', auth, async (req, res) => {
       message: `${registration.user.name} is now ${registration.isCheckedIn ? 'Checked-IN ✅' : 'Un-Checked ❌'}`,
       registration 
     });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Admin: Get CodeIt settings
+router.get('/settings', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'PRESIDENT' && req.user.role !== 'VOLUNTEER') {
+      return res.status(403).json({ message: 'Access denied.' });
+    }
+    let settings = await CodeItSettings.findOne();
+    if (!settings) {
+      settings = new CodeItSettings();
+      await settings.save();
+    }
+    res.json(settings);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Admin: Update CodeIt settings
+router.put('/settings', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'PRESIDENT') {
+      return res.status(403).json({ message: 'Access denied. Only President can update this.' });
+    }
+    const { hackerrankLink, isLinkPublished } = req.body;
+    let settings = await CodeItSettings.findOne();
+    if (!settings) {
+      settings = new CodeItSettings();
+    }
+    if (hackerrankLink !== undefined) settings.hackerrankLink = hackerrankLink;
+    if (isLinkPublished !== undefined) settings.isLinkPublished = isLinkPublished;
+    
+    await settings.save();
+    res.json({ message: 'CodeIt settings updated successfully', settings });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
