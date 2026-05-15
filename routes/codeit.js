@@ -22,8 +22,8 @@ router.post('/register', auth, async (req, res) => {
       return res.status(400).json({ message: 'You are already registered for CodeIt.' });
     }
 
-    // Check deadline (May 14, 2026 23:59:59 IST)
-    const deadline = new Date('2026-05-14T23:59:59+05:30');
+    // Check deadline (May 20, 2026 23:59:59 IST)
+    const deadline = new Date('2026-05-20T23:59:59+05:30');
     if (new Date() > deadline) {
       return res.status(400).json({ message: 'Registration deadline has passed.' });
     }
