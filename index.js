@@ -26,7 +26,6 @@ app.use('/api/events', require('./routes/events'));
 app.use('/api/notices', require('./routes/notices'));
 app.use('/api/contests', require('./routes/contests'));
 app.use('/api/submissions', require('./routes/submissions'));
-app.use('/api/codeit', require('./routes/codeit'));
 
 // Global Error Handler
 app.use((err, req, res, next) => {
